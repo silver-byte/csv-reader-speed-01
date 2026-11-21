@@ -1,4 +1,4 @@
-export default function run(input) {
+export function run(input) {
   const s = String(input.text);
   const header = input.header === true;
   const n = s.length;
@@ -26,7 +26,14 @@ export default function run(input) {
     let fieldCount = 0;
     let recDone = false;
 
-    while (!recDone && i < n) {
+    while (!recDone) {
+      if (i >= n) {
+        if (fieldCount === 0) singleFieldQuoted = false;
+        fields.push("");
+        fieldCount++;
+        recDone = true;
+        break;
+      }
       if (s.charCodeAt(i) === 0x22) {
         let qline = line;
         let p = i + 1;
@@ -166,9 +173,10 @@ export default function run(input) {
     const isSingleEmptyUnquoted = fieldCount === 1 && fields[0] === "" && !singleFieldQuoted;
 
     if (isSingleEmptyUnquoted) {
+      const erow = header && !headerSet ? null : rowIndex;
       for (let k = 0; k < recErrors.length; k++) {
         const er = recErrors[k];
-        er.row = rowIndex;
+        er.row = erow;
         errors.push(er);
       }
       continue;
@@ -207,3 +215,4 @@ export default function run(input) {
   if (header && !headerSet) columns = [];
   return { columns, rows, errors };
 }
+export default run;
